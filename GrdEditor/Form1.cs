@@ -44,6 +44,7 @@ namespace GrdEditor
 
         private void SynchronizeData()
         {
+            // Заполнение форм
             SetCountValue(_rowCountNumericUpDown, _map.RowCount);
             SetCountValue(_columnCountNumericUpDown, _map.ColumnCount);
             _textDataTextBox.Text = _map.TextData;
@@ -52,6 +53,9 @@ namespace GrdEditor
             SetValue(_xMaxNumericUpDown, Convert.ToDecimal(_map.XMax));
             SetValue(_yMinNumericUpDown, Convert.ToDecimal(_map.YMin));
             SetValue(_yMaxNumericUpDown, Convert.ToDecimal(_map.YMax));
+
+            // Пересчёт коэффициентов
+            CalculateZTransformation();
         }
 
         private void SetCountValue(NumericUpDown widget, Decimal value)
@@ -78,9 +82,28 @@ namespace GrdEditor
 
         GrdMap _map = null;
 
-        private void test(object sender, EventArgs e)
+        const Single[] _high_color =  { 1.0f, 0.753f, 0.0f };
+        const Single[] _low_color = { 0.0f, 0.69f, 0.314f };
+        Single z_factor, z_offset;
+
+        private void CalculateZTransformation()
         {
-            
+            z_factor = 1.0f / Convert.ToSingle(_map.ZMax-_map.ZMin);
+            z_offset = -z_factor * Convert.ToSingle(_map.ZMin);
+        }
+
+        private Color GetCellColor(int row, int col)
+        {
+            Int32 i;
+            Int32[] color = new Int32[3];
+            Single alpha = Convert.ToSingle(_map[row, col]) * z_factor + z_offset;
+            Single beta = 1.0f - alpha;
+
+            for (i = 0; i < 3; ++i)
+            {
+                color[i] = Convert.ToInt32(_low_color[i] * alpha + _high_color[i] * beta);
+            }
+            return Color.FromArgb(color[0], color[1], color[2]);
         }
 
         private void numericUpDown3_ValueChanged(object sender, EventArgs e)
