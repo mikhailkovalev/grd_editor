@@ -47,10 +47,11 @@ namespace GrdEditor
             SetCountValue(_rowCountNumericUpDown, _map.RowCount);
             SetCountValue(_columnCountNumericUpDown, _map.ColumnCount);
             _textDataTextBox.Text = _map.TextData;
-            SetMinMaxValue(_xMinNumericUpDown, Convert.ToDecimal(_map.XMin));
-            SetMinMaxValue(_xMaxNumericUpDown, Convert.ToDecimal(_map.XMax));
-            SetMinMaxValue(_yMinNumericUpDown, Convert.ToDecimal(_map.YMin));
-            SetMinMaxValue(_yMaxNumericUpDown, Convert.ToDecimal(_map.YMax));
+            SetValue(_defaultDataNumericUpDown, Convert.ToDecimal(_map.DefaultValue));
+            SetValue(_xMinNumericUpDown, Convert.ToDecimal(_map.XMin));
+            SetValue(_xMaxNumericUpDown, Convert.ToDecimal(_map.XMax));
+            SetValue(_yMinNumericUpDown, Convert.ToDecimal(_map.YMin));
+            SetValue(_yMaxNumericUpDown, Convert.ToDecimal(_map.YMax));
         }
 
         private void SetCountValue(NumericUpDown widget, Decimal value)
@@ -62,7 +63,7 @@ namespace GrdEditor
             widget.Value = value;
         }
 
-        private void SetMinMaxValue(NumericUpDown widget, Decimal value)
+        private void SetValue(NumericUpDown widget, Decimal value)
         {
             if (value > widget.Maximum)
             {
