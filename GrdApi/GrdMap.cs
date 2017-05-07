@@ -12,23 +12,24 @@ namespace GrdApi
         public GrdMap(Int16 column_count,
                       Int16 row_count,
                       String text_data = "INFO",
-                      Single value = 0.0f)
+                      Single default_value = 0.0f)
         {
             TextData = text_data;
 
             _col_count = column_count;
             _row_count = row_count;
+            _default_value = default_value;
 
             _cell_data = new Single[_row_count, _col_count];
             Int16 i = 0, j = 0;
             while (i < _row_count)
             {
-                _cell_data[i, j] = value;
+                _cell_data[i, j] = default_value;
 
                 if (++j == _col_count) { ++i; j = 0; }
             }
 
-            _z_max = _z_min = Convert.ToDouble(value);
+            _z_max = _z_min = Convert.ToDouble(default_value);
 
             _x_min = 0.0;
             _x_max = Convert.ToDouble(column_count);
@@ -40,7 +41,7 @@ namespace GrdApi
         public GrdMap(Int16 column_count,
                       Int16 row_count,
                       String text_data,
-                      Single value,
+                      Single default_value,
                       Double x_min,
                       Double x_max,
                       Double y_min,
@@ -50,17 +51,18 @@ namespace GrdApi
 
             _col_count = column_count;
             _row_count = row_count;
+            _default_value = default_value;
 
             _cell_data = new Single[_row_count, _col_count];
             Int16 i = 0, j = 0;
             while (i < _row_count)
             {
-                _cell_data[i, j] = value;
+                _cell_data[i, j] = default_value;
 
                 if (++j == _col_count) { ++i; j = 0; }
             }
 
-            _z_max = _z_min = Convert.ToDouble(value);
+            _z_max = _z_min = Convert.ToDouble(default_value);
 
             _x_min = x_min;
             _x_max = x_max;
@@ -69,8 +71,10 @@ namespace GrdApi
             _y_max = y_max;
         }
 
-        public GrdMap(String file_name)
+        public GrdMap(String file_name, Single default_value = 0.0f)
         {
+            _default_value = default_value;
+
             FileStream in_stream = new FileStream(file_name, FileMode.Open, FileAccess.Read);
             BinaryReader reader = new BinaryReader(in_stream, Encoding.ASCII);
 
@@ -182,6 +186,18 @@ namespace GrdApi
             }
         }
 
+        public Single DefaultValue
+        {
+            get
+            {
+                return _default_value;
+            }
+            set
+            {
+                _default_value = value;
+            }
+        }
+
         public Double XMin
         {
             get
@@ -238,9 +254,9 @@ namespace GrdApi
             }
             set
             {
-                if (value > _z_max) _z_max = Convert.ToDouble(value);
-                else if (value < _z_min) _z_min = Convert.ToDouble(value);
-                _cell_data[row, column] = value;
+                if (default_value > _z_max) _z_max = Convert.ToDouble(default_value);
+                else if (default_value < _z_min) _z_min = Convert.ToDouble(default_value);
+                _cell_data[row, column] = default_value;
             }
         }*/
 
@@ -271,6 +287,8 @@ namespace GrdApi
         private Double _z_max;
 
         private Single[,] _cell_data;
+
+        private Single _default_value;
 
         private const Int32 __text_data_size__ = 4;
     }
