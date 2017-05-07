@@ -14,7 +14,27 @@ namespace GrdApi
                       String text_data = "INFO",
                       Single value = 0.0f)
         {
+            TextData = text_data;
 
+            _col_count = column_count;
+            _row_count = row_count;
+
+            _cell_data = new Single[_row_count, _col_count];
+            Int16 i = 0, j = 0;
+            while (i < _row_count)
+            {
+                _cell_data[i, j] = value;
+
+                if (++j == _col_count) { ++i; j = 0; }
+            }
+
+            _z_max = _z_min = Convert.ToDouble(value);
+
+            _x_min = 0.0;
+            _x_max = Convert.ToDouble(column_count);
+
+            _y_min = 0.0;
+            _y_max = Convert.ToDouble(row_count);
         }
 
         public GrdMap(Int16 column_count,
