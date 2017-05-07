@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GrdEditor", "GrdEditor\GrdEditor.csproj", "{6C4066B9-4CD3-49F5-8EC4-DFB07087FF99}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GrdApi", "GrdApi\GrdApi.csproj", "{A73BD8B9-B61C-49C8-AF5D-535290102D03}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestApi", "TestApi\TestApi.csproj", "{AD3E1523-8B40-48AF-82D8-D435FB856053}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6C4066B9-4CD3-49F5-8EC4-DFB07087FF99}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6C4066B9-4CD3-49F5-8EC4-DFB07087FF99}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6C4066B9-4CD3-49F5-8EC4-DFB07087FF99}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6C4066B9-4CD3-49F5-8EC4-DFB07087FF99}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A73BD8B9-B61C-49C8-AF5D-535290102D03}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A73BD8B9-B61C-49C8-AF5D-535290102D03}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A73BD8B9-B61C-49C8-AF5D-535290102D03}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A73BD8B9-B61C-49C8-AF5D-535290102D03}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AD3E1523-8B40-48AF-82D8-D435FB856053}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD3E1523-8B40-48AF-82D8-D435FB856053}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AD3E1523-8B40-48AF-82D8-D435FB856053}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AD3E1523-8B40-48AF-82D8-D435FB856053}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
