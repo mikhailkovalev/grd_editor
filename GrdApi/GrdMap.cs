@@ -176,6 +176,11 @@ namespace GrdApi
             {
                 return Convert.ToInt32(_col_count);
             }
+            set
+            {
+                if (value == _col_count) return;
+                ResizeMap(_row_count, value);
+            }
         }
 
         public Int32 RowCount
@@ -183,6 +188,11 @@ namespace GrdApi
             get
             {
                 return Convert.ToInt32(_row_count);
+            }
+            set
+            {
+                if (value == _row_count) return;
+                ResizeMap(value, _col_count);
             }
         }
 
@@ -272,6 +282,30 @@ namespace GrdApi
                 else if (value < _z_min) _z_min = value;
                 _cell_data[row, column] = Convert.ToSingle(value);
             }
+        }
+
+        private void ResizeMap(Int32 row_count, Int32 col_count)
+        {
+            var new_cell_data = new Single[row_count, col_count];
+            Int32 i = 0, j = 0;
+
+            while (i < row_count)
+            {
+                if (j >= _col_count || i >= _row_count)
+                {
+                    new_cell_data[i, j] = _default_value;
+                }
+                else
+                {
+                    new_cell_data[i, j] = _cell_data[i, j];
+                }
+                if (++j == col_count)
+                {
+                    j = 0;
+                    ++i;
+                }
+            }
+            _cell_data = new_cell_data;
         }
 
         private String _text_data;
