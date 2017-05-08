@@ -17,6 +17,7 @@ namespace GrdEditor
         public abstract void MouseDownHandler(MouseEventArgs args);
         public abstract void MouseUpHandler(MouseEventArgs args);
         public abstract void MouseMoveHandler(MouseEventArgs args);
+        public abstract void Paint(Graphics g);
 
         protected MainForm _form;
     }
@@ -134,6 +135,26 @@ namespace GrdEditor
                 }
             }
         }
+
+        public override void MouseMoveHandler(MouseEventArgs args)
+        {
+            SecondPoint = args.Location;
+        }
+
+        public override void Paint(Graphics g)
+        {
+            if (FirstPointInited)
+            {
+                Pen pen = new Pen(Color.Black);
+                int x = Math.Min(FirstPoint.X, SecondPoint.X);
+                int y = Math.Min(FirstPoint.Y, SecondPoint.Y);
+                int w = Math.Abs(FirstPoint.X - SecondPoint.X);
+                int h = Math.Abs(FirstPoint.Y - SecondPoint.Y);
+                g.DrawRectangle(pen, x, y, w, h);
+            }
+            //pen.DashPattern = new Single[] { 3.0f, 3.0f };
+            
+        }
     }
 
     public class HandTool : RectangleTool
@@ -188,6 +209,7 @@ namespace GrdEditor
 
         public override void MouseMoveHandler(MouseEventArgs args)
         {
+            base.MouseMoveHandler(args);
             if (FirstPointInited && !SecondPointInited)
             {
                 Int32 dx = args.X - FirstPoint.X;
@@ -198,6 +220,11 @@ namespace GrdEditor
                 _form.downBound = oldDownBound + dy;
                 _form.Update(args.Location, MapPos);
             }
+        }
+
+        public override void Paint(Graphics g)
+        {
+            
         }
 
         private Int32 oldLeftBound, oldRightBound;

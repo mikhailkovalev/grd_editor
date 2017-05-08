@@ -174,6 +174,8 @@ namespace GrdEditor
                     r = GetRowFromY(y);
                 }
             }
+
+            _tool.Paint(g);
         }
 
         private void pictureBox1_MouseDown(object sender, MouseEventArgs e)
