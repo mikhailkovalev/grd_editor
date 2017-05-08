@@ -95,16 +95,37 @@ namespace GrdEditor
             }
         }
 
+        private bool ValidCell(int row, int col)
+        {
+            return row >= 0 && row < _map.RowCount &&
+                   col >= 0 && col < _map.ColumnCount;
+        }
+
         private Color GetCellColor(int row, int col)
         {
             Int32 i;
             Int32[] color = new Int32[3];
-            Single alpha = Convert.ToSingle(_map[row, col]) * z_factor + z_offset;
-            Single beta = 1.0f - alpha;
 
-            for (i = 0; i < 3; ++i)
+            if (ValidCell(row, col))
             {
-                color[i] = Convert.ToInt32(255.0f * (_low_color[i] * alpha + _high_color[i] * beta) + 0.5f);
+
+                Single alpha = Convert.ToSingle(_map[row, col]) * z_factor + z_offset;
+                Single beta = 1.0f - alpha;
+
+                for (i = 0; i < 3; ++i)
+                {
+                    color[i] = Convert.ToInt32(255.0f * (_low_color[i] * alpha + _high_color[i] * beta));
+                }
+            }
+            else
+            {
+                bool first = ((row & 8) > 0) ^ ((col & 8) > 0);
+                Single[] float_color = first ? _def_color1 : _def_color2;
+
+                for (i = 0; i < 3; ++i)
+                {
+                    color[i] = Convert.ToInt32(255.0f * float_color[i]);
+                }
             }
             return Color.FromArgb(color[0], color[1], color[2]);
         }
@@ -126,21 +147,13 @@ namespace GrdEditor
 
         private int GetColumnFromX(int x)
         {
-            int col = Convert.ToInt32(rc_factor * x + c_offset + 0.5f);
-            
-            if (col < 0) col = 0;
-            else if (col >= _map.ColumnCount) col = _map.ColumnCount - 1;
-            
+            int col = Convert.ToInt32(rc_factor * x + c_offset);
             return col;
         }
 
         private int GetRowFromY(int y)
         {
-            int row = Convert.ToInt32(rc_factor * y + r_offset + 0.5f);
-            
-            if (row < 0) row = 0;
-            else if (row >= _map.RowCount) row = _map.RowCount - 1;
-            
+            int row = Convert.ToInt32(rc_factor * y + r_offset);
             return row;
         }
 
@@ -177,6 +190,8 @@ namespace GrdEditor
 
         Single[] _high_color = { 1.0f, 0.753f, 0.0f };
         Single[] _low_color = { 0.0f, 0.69f, 0.314f };
+        Single[] _def_color1 = { 0.0f, 0.0f, 0.0f };
+        Single[] _def_color2 = { 0.5f, 0.0f, 1.0f };
         Single z_factor, z_offset;
         Single _eps = 1e-6f;
 
