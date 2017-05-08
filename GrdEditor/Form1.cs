@@ -145,18 +145,6 @@ namespace GrdEditor
 
         }
 
-        private int GetColumnFromX(int x)
-        {
-            int col = Convert.ToInt32(rc_factor * x + c_offset);
-            return col;
-        }
-
-        private int GetRowFromY(int y)
-        {
-            int row = Convert.ToInt32(rc_factor * y + r_offset);
-            return row;
-        }
-
         private void pictureBox1_Paint(object sender, PaintEventArgs e)
         {
             var g = e.Graphics;
@@ -186,6 +174,82 @@ namespace GrdEditor
             }
         }
 
+        private void pictureBox1_MouseDown(object sender, MouseEventArgs e)
+        {
+
+        }
+
+        private void pictureBox1_MouseMove(object sender, MouseEventArgs e)
+        {
+            _info_label.Text = String.Format("X = {0}, Y = {1}", e.X, e.Y);
+        }
+
+        private int GetColumnFromX(int x)
+        {
+            int col = Convert.ToInt32(rc_factor * x + c_offset);
+            return col;
+        }
+
+        private int GetRowFromY(int y)
+        {
+            int row = Convert.ToInt32(rc_factor * y + r_offset);
+            return row;
+        }
+
+        private int GetXFromColumn(int column)
+        {
+            int x = Convert.ToInt32(xy_factor * column + x_offset);
+            return x;
+        }
+
+        private int GetYFromRow(int row)
+        {
+            int y = Convert.ToInt32(xy_factor * row + x_offset);
+            return y;
+        }
+
+        private void CalculateBoundsUsingFactors()
+        {
+            upBound = GetYFromRow(0);
+            downBound = GetYFromRow(_map.RowCount - 1);
+            leftBound = GetXFromColumn(0);
+            rightBound = GetXFromColumn(_map.ColumnCount-1);
+        }
+
+        private void CalculateFactorsUsingBounds()
+        {
+            Single w = pictureBox1.Width;
+            Single h = pictureBox1.Height;
+            Single columnCount = Convert.ToSingle(_map.ColumnCount);
+            Single rowCount = Convert.ToSingle(_map.RowCount);
+
+            // Назовём рекомендуемой областью прямоугольник, задаваемый
+            // полями leftBound и др.
+            // Хотим, чтобы рекомендуемая область гарантированно
+            // отображалась на экране; Рекомендуемая область не всегда
+            // будет подобна прямоугольнику экрана, поэтому нужно
+            // посчитать коэффициенты растяжения по обеим осям и
+            // в качестве результирующего взять минимальный
+            Single x_factor = (rightBound-leftBound) / (columnCount-1);
+            Single y_factor = (downBound-upBound) / (rowCount-1);
+
+            xy_factor = x_factor > y_factor ? y_factor : x_factor;
+
+            // Теперь хотим, чтобы центр рекомендуемой области
+            // совпал с центром пикчербокса
+            x_offset = 0.5f * (leftBound + rightBound - xy_factor * w);
+            y_offset = 0.5f * (upBound + downBound - xy_factor * h);
+
+            //Теперь считаем обратное преобразование:
+            rc_factor = 1.0f / xy_factor;
+            r_offset = -y_offset * rc_factor;
+            c_offset = -x_offset * rc_factor;
+
+            //Теперь вычислим "истинную" область, а не "рекомендуемую"
+            CalculateBoundsUsingFactors();
+
+        }
+
         GrdMap _map = null;
 
         Single[] _high_color = { 1.0f, 0.753f, 0.0f };
@@ -200,5 +264,9 @@ namespace GrdEditor
 
         // Преобразование координат из пикселей в строки/столбцы
         Single rc_factor = 1.0f, r_offset = 0.0f, c_offset = 0.0f;
+
+        // Границы, в которые переходят границы карты
+        Int32 upBound, downBound;
+        Int32 leftBound, rightBound;
     }
 }
