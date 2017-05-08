@@ -107,6 +107,7 @@
             this.pictureBox1.Size = new System.Drawing.Size(534, 350);
             this.pictureBox1.TabIndex = 0;
             this.pictureBox1.TabStop = false;
+            this.pictureBox1.Paint += new System.Windows.Forms.PaintEventHandler(this.pictureBox1_Paint);
             // 
             // tableLayoutPanel3
             // 
@@ -224,7 +225,6 @@
             this._rowCountNumericUpDown.Name = "_rowCountNumericUpDown";
             this._rowCountNumericUpDown.Size = new System.Drawing.Size(87, 20);
             this._rowCountNumericUpDown.TabIndex = 4;
-            this._rowCountNumericUpDown.ValueChanged += new System.EventHandler(this.test);
             // 
             // _columnCountNumericUpDown
             // 
@@ -341,7 +341,6 @@
             this.Controls.Add(this.tableLayoutPanel1);
             this.DoubleBuffered = true;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-            this.MaximizeBox = false;
             this.Name = "MainForm";
             this.Text = "GrdEditor";
             this.tableLayoutPanel1.ResumeLayout(false);

@@ -38,7 +38,7 @@ namespace GrdEditor
                 _map = new GrdMap(10, 10);
             }
             // Test file
-            // _map = new GrdMap(@"C:\Users\Mixon\GRD\relief.grd");
+            _map = new GrdMap(@"C:\Users\Mixon\GRD\relief.grd");
             SynchronizeData();
         }
 
@@ -80,16 +80,19 @@ namespace GrdEditor
             widget.Value = value;
         }
 
-        GrdMap _map = null;
-
-        const Single[] _high_color =  { 1.0f, 0.753f, 0.0f };
-        const Single[] _low_color = { 0.0f, 0.69f, 0.314f };
-        Single z_factor, z_offset;
-
         private void CalculateZTransformation()
         {
-            z_factor = 1.0f / Convert.ToSingle(_map.ZMax-_map.ZMin);
-            z_offset = -z_factor * Convert.ToSingle(_map.ZMin);
+            Single z_diff = Convert.ToSingle(_map.ZMax - _map.ZMin);
+            if (Math.Abs(z_diff) > _eps)
+            {
+                z_factor = 1.0f / z_diff;
+                z_offset = -z_factor * Convert.ToSingle(_map.ZMin);
+            }
+            else
+            {
+                z_factor = 0.0f;
+                z_offset = 0.5f;
+            }
         }
 
         private Color GetCellColor(int row, int col)
@@ -101,7 +104,7 @@ namespace GrdEditor
 
             for (i = 0; i < 3; ++i)
             {
-                color[i] = Convert.ToInt32(_low_color[i] * alpha + _high_color[i] * beta);
+                color[i] = Convert.ToInt32(255.0f * (_low_color[i] * alpha + _high_color[i] * beta) + 0.5f);
             }
             return Color.FromArgb(color[0], color[1], color[2]);
         }
@@ -120,5 +123,67 @@ namespace GrdEditor
         {
 
         }
+
+        private int GetColumnFromX(int x)
+        {
+            int col = Convert.ToInt32(rc_factor * x + c_offset + 0.5f);
+            
+            if (col < 0) col = 0;
+            else if (col >= _map.ColumnCount) col = _map.ColumnCount - 1;
+            
+            return col;
+        }
+
+        private int GetRowFromY(int y)
+        {
+            int row = Convert.ToInt32(rc_factor * y + r_offset + 0.5f);
+            
+            if (row < 0) row = 0;
+            else if (row >= _map.RowCount) row = _map.RowCount - 1;
+            
+            return row;
+        }
+
+        private void pictureBox1_Paint(object sender, PaintEventArgs e)
+        {
+            var g = e.Graphics;
+            PictureBox box = sender as PictureBox;
+
+            int x = 0, y = 0, w = box.Width, h = box.Height;
+
+            // "Бюджетное" округление до ближайшего целого
+            int r = GetRowFromY(y);
+            int c;
+
+            SolidBrush brush = new SolidBrush(Color.Black);
+
+            while (y < h)
+            {
+                c = GetColumnFromX(x);
+                
+                brush.Color = GetCellColor(r, c);
+                g.FillRectangle(brush, x, y, 1, 1);
+
+                if (++x == w)
+                {
+                    x = 0;
+                    ++y;
+                    r = GetRowFromY(y);
+                }
+            }
+        }
+
+        GrdMap _map = null;
+
+        Single[] _high_color = { 1.0f, 0.753f, 0.0f };
+        Single[] _low_color = { 0.0f, 0.69f, 0.314f };
+        Single z_factor, z_offset;
+        Single _eps = 1e-6f;
+
+        // Преобразование координат из строк/столбцов в пиксели
+        Single xy_factor = 1.0f, x_offset = 0.0f, y_offset = 0.0f;
+
+        // Преобразование координат из пикселей в строки/столбцы
+        Single rc_factor = 1.0f, r_offset = 0.0f, c_offset = 0.0f;
     }
 }
