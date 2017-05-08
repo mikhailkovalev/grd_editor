@@ -20,6 +20,8 @@ namespace GrdEditor
             {
                 InitializeComponent();
                 LoadArgs(argv);
+                CalculateBoundsUsingFactors();
+                _tool = new HandTool(this);
             }
             catch (Exception e)
             {
@@ -176,12 +178,28 @@ namespace GrdEditor
 
         private void pictureBox1_MouseDown(object sender, MouseEventArgs e)
         {
+            _tool.MouseDownHandler(e);
+        }
 
+        private void pictureBox1_MouseUp(object sender, MouseEventArgs e)
+        {
+            _tool.MouseUpHandler(e);
         }
 
         private void pictureBox1_MouseMove(object sender, MouseEventArgs e)
         {
             _info_label.Text = String.Format("X = {0}, Y = {1}", e.X, e.Y);
+            _tool.MouseMoveHandler(e);
+        }
+
+        public Single GetColumnFromXF(int x)
+        {
+            return rc_factor * x + c_offset;
+        }
+
+        public Single GetRowFromYF(int y)
+        {
+            return rc_factor * y + r_offset;
         }
 
         private int GetColumnFromX(int x)
@@ -216,7 +234,7 @@ namespace GrdEditor
             rightBound = GetXFromColumn(_map.ColumnCount-1);
         }
 
-        private void CalculateFactorsUsingBounds()
+        private void CalculateFactorsUsingBounds(Point CursorPos, PointF MapPos)
         {
             Single w = pictureBox1.Width;
             Single h = pictureBox1.Height;
@@ -235,19 +253,26 @@ namespace GrdEditor
 
             xy_factor = x_factor > y_factor ? y_factor : x_factor;
 
-            // Теперь хотим, чтобы центр рекомендуемой области
-            // совпал с центром пикчербокса
-            x_offset = 0.5f * (leftBound + rightBound - xy_factor * w);
-            y_offset = 0.5f * (upBound + downBound - xy_factor * h);
+            // Теперь хотим, чтобы точка, по которой кликнули перешла в себя же
+            x_offset = CursorPos.X - xy_factor * MapPos.X;
+            y_offset = CursorPos.Y - xy_factor * MapPos.Y;
+            /*x_offset = 0.5f * (leftBound + rightBound - xy_factor * columnCount);
+            y_offset = 0.5f * (upBound + downBound - xy_factor * rowCount);*/
 
-            //Теперь считаем обратное преобразование:
+            //Считаем обратное преобразование:
             rc_factor = 1.0f / xy_factor;
             r_offset = -y_offset * rc_factor;
             c_offset = -x_offset * rc_factor;
 
             //Теперь вычислим "истинную" область, а не "рекомендуемую"
             CalculateBoundsUsingFactors();
+        }
 
+        public void Update(Point CursorPos, PointF MapPos)
+        {
+            CalculateFactorsUsingBounds(CursorPos, MapPos);
+            pictureBox1.Invalidate();
+            Refresh();
         }
 
         GrdMap _map = null;
@@ -266,7 +291,11 @@ namespace GrdEditor
         Single rc_factor = 1.0f, r_offset = 0.0f, c_offset = 0.0f;
 
         // Границы, в которые переходят границы карты
-        Int32 upBound, downBound;
-        Int32 leftBound, rightBound;
+        public Int32 upBound, downBound;
+        public Int32 leftBound, rightBound;
+
+        AbstractTool _tool;
+
+        
     }
 }

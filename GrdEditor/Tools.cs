@@ -11,8 +11,12 @@ namespace GrdEditor
             _form = form;
         }
 
+        // Методы обработки событий мыши
+        // Если метод вернул true, то
+        // надо обновить экран
         public abstract void MouseDownHandler(MouseEventArgs args);
         public abstract void MouseUpHandler(MouseEventArgs args);
+        public abstract void MouseMoveHandler(MouseEventArgs args);
 
         protected MainForm _form;
     }
@@ -125,5 +129,76 @@ namespace GrdEditor
                 }
             }
         }
+    }
+
+    public class HandTool : RectangleTool
+    {
+        // Инструмент "рука" предназначен для
+        // перетаскивания карты вдоль экрана
+
+        public HandTool(MainForm form) : base(form) { }
+
+        public override void MouseDownHandler(MouseEventArgs args)
+        {
+            base.MouseDownHandler(args);
+            if (args.Button == MouseButtons.Left)
+            {
+                // Запоминаем старые значения
+                // отображаемой области
+                oldDownBound = _form.downBound;
+                oldLeftBound = _form.leftBound;
+                oldRightBound = _form.rightBound;
+                oldUpBound = _form.upBound;
+
+                CursorPos = args.Location;
+                MapPos.X = _form.GetColumnFromXF(CursorPos.X);
+                MapPos.Y = _form.GetRowFromYF(CursorPos.Y);
+            }
+            else if (args.Button == MouseButtons.Right)
+            {
+                // Если "выделение" было сброшено, возвращаем
+                // старые границы на место
+                _form.downBound = oldDownBound;
+                _form.leftBound = oldLeftBound;
+                _form.rightBound = oldRightBound;
+                _form.upBound = oldUpBound;
+                _form.Update(CursorPos, MapPos);
+            }
+        }
+        
+        public override void MouseUpHandler(MouseEventArgs args)
+        {
+            base.MouseUpHandler(args);
+
+            if (args.Button == MouseButtons.Left && FirstPointInited && SecondPointInited)
+            {
+                _form.Update(args.Location, MapPos);
+            }
+            
+            // Так как после перетаскивания мы больше ничего
+            // не хотим делать с обозначенными двумя точками,
+            // то мы их тупо сбрасываем
+            FirstPointInited = SecondPointInited = false;
+        }
+
+        public override void MouseMoveHandler(MouseEventArgs args)
+        {
+            if (FirstPointInited && !SecondPointInited)
+            {
+                Int32 dx = args.X - FirstPoint.X;
+                Int32 dy = args.Y - FirstPoint.Y;
+                Console.WriteLine("dx = {0}, dy = {1}", dx, dy);
+                _form.leftBound = oldLeftBound + dx;
+                _form.rightBound = oldRightBound + dx;
+                _form.upBound = oldUpBound + dy;
+                _form.downBound = oldDownBound + dy;
+                _form.Update(args.Location, MapPos);
+            }
+        }
+
+        private Int32 oldLeftBound, oldRightBound;
+        private Int32 oldUpBound, oldDownBound;
+        private Point CursorPos;
+        private PointF MapPos;
     }
 }
