@@ -114,18 +114,23 @@ namespace GrdEditor
                 // Отпускание ЛКМ должно завершить
                 // процесс выделения
 
-                if (!FirstPointInited || SecondPointInited)
+                if (FirstPointInited && !SecondPointInited)
+                {
+                    // Ну а тут наш клиент:
+                    SecondPointInited = true;
+                    SecondPoint = args.Location;
+                }
+                else if (!FirstPointInited && !SecondPointInited)
+                {
+                    // Если выделение было сброшено ПКМ,
+                    // но ЛКМ ещё не отпущена
+                }
+                else
                 {
                     // По-идее первая точка здесь всегда
                     // должна быть инициализирована, 
                     // а вторая - нет поэтому в целях отладки:
                     MessageBox.Show(String.Format(LftUpErrFmt, FirstPointInited, SecondPointInited));
-                }
-                else
-                {
-                    // Ну а тут наш клиент:
-                    SecondPointInited = true;
-                    SecondPoint = args.Location;
                 }
             }
         }
@@ -187,7 +192,6 @@ namespace GrdEditor
             {
                 Int32 dx = args.X - FirstPoint.X;
                 Int32 dy = args.Y - FirstPoint.Y;
-                Console.WriteLine("dx = {0}, dy = {1}", dx, dy);
                 _form.leftBound = oldLeftBound + dx;
                 _form.rightBound = oldRightBound + dx;
                 _form.upBound = oldUpBound + dy;
