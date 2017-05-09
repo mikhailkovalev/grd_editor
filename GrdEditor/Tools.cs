@@ -20,6 +20,7 @@ namespace GrdEditor
         public abstract void Paint(Graphics g);
 
         protected MainForm _form;
+        protected Pen _pen = new Pen(Color.Black);
     }
 
     public abstract class RectangleTool: AbstractTool
@@ -145,14 +146,13 @@ namespace GrdEditor
         {
             if (FirstPointInited)
             {
-                Pen pen = new Pen(Color.Black);
                 int x = Math.Min(FirstPoint.X, SecondPoint.X);
                 int y = Math.Min(FirstPoint.Y, SecondPoint.Y);
                 int w = Math.Abs(FirstPoint.X - SecondPoint.X);
                 int h = Math.Abs(FirstPoint.Y - SecondPoint.Y);
-                g.DrawRectangle(pen, x, y, w, h);
+                g.DrawRectangle(_pen, x, y, w, h);
             }
-            //pen.DashPattern = new Single[] { 3.0f, 3.0f };
+            //_pen.DashPattern = new Single[] { 3.0f, 3.0f };
             
         }
     }
