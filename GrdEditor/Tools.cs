@@ -140,6 +140,7 @@ namespace GrdEditor
         public override void MouseMoveHandler(MouseEventArgs args)
         {
             SecondPoint = args.Location;
+            _form.UpdatePictureBox();
         }
 
         public override void Paint(Graphics g)
@@ -188,7 +189,7 @@ namespace GrdEditor
                 _form.leftBound = oldLeftBound;
                 _form.rightBound = oldRightBound;
                 _form.upBound = oldUpBound;
-                _form.Update(CursorPos, MapPos);
+                _form.UpdateTransformation(CursorPos, MapPos);
             }
         }
         
@@ -198,7 +199,7 @@ namespace GrdEditor
 
             if (args.Button == MouseButtons.Left && FirstPointInited && SecondPointInited)
             {
-                _form.Update(args.Location, MapPos);
+                _form.UpdateTransformation(args.Location, MapPos);
             }
             
             // Так как после перетаскивания мы больше ничего
@@ -218,7 +219,7 @@ namespace GrdEditor
                 _form.rightBound = oldRightBound + dx;
                 _form.upBound = oldUpBound + dy;
                 _form.downBound = oldDownBound + dy;
-                _form.Update(args.Location, MapPos);
+                _form.UpdateTransformation(args.Location, MapPos);
             }
         }
 
@@ -231,5 +232,94 @@ namespace GrdEditor
         private Int32 oldUpBound, oldDownBound;
         private Point CursorPos;
         private PointF MapPos;
+    }
+
+    public class MagnifierTool : RectangleTool
+    {
+        public MagnifierTool(MainForm form) : base(form)
+        {
+            _pen.DashPattern = new Single[] { 2.0f, 1.0f };
+        }
+
+        public override void MouseDownHandler(MouseEventArgs args)
+        {
+            base.MouseDownHandler(args);
+        }
+        public override void MouseUpHandler(MouseEventArgs args)
+        {
+            base.MouseUpHandler(args);
+
+            if (args.Button == MouseButtons.Left && FirstPointInited && SecondPointInited)
+            {
+                // Если отпущена ЛКМ и выделение не было сброшено, то перемасштабируем
+
+                int tmp;
+                
+                if (FirstPoint.X == SecondPoint.X || FirstPoint.Y == SecondPoint.Y)
+                {
+                    // Если преобразование вырождено - сбрасываем
+                    // выделение и ничего не делаем
+                    FirstPointInited = SecondPointInited = false;
+                    return;
+                }
+
+                // Хотим, чтобы FirstPoint была левой...
+                if (FirstPoint.X > SecondPoint.X)
+                {
+                    tmp = FirstPoint.X;
+                    FirstPoint.X = SecondPoint.X;
+                    SecondPoint.X = tmp;
+                }
+
+                // ... и верхней точкой выделенной области
+                if (FirstPoint.Y > SecondPoint.Y)
+                {
+                    tmp = FirstPoint.Y;
+                    FirstPoint.Y = SecondPoint.Y;
+                    SecondPoint.Y = tmp;
+                }
+
+                Single factor, offset;
+                Single low, high;
+
+                Size pictureBoxSize = _form.PictureBoxSize;
+                Size mapSize = _form.MapSize;
+
+                Single width = pictureBoxSize.Width - 1;
+                Single height = pictureBoxSize.Height - 1;
+
+                Single rowCount = mapSize.Width;
+                Single colCount = mapSize.Height;
+
+                PointF mapPoint = new PointF();
+
+                low = _form.GetColumnFromXF(FirstPoint.X);
+                high = _form.GetColumnFromXF(SecondPoint.X);
+
+                mapPoint.X = 0.5f * (low + high);
+
+                factor = width / (high - low);
+                offset = low * width / (low - high);
+
+                _form.leftBound = Convert.ToInt32(offset);
+                _form.rightBound = Convert.ToInt32(factor * colCount + offset);
+
+                low = _form.GetRowFromYF(FirstPoint.Y);
+                high = _form.GetRowFromYF(SecondPoint.Y);
+
+                mapPoint.Y = 0.5f * (low + high);
+
+                factor = height / (high - low);
+                offset = low * width / (low - high);
+
+                _form.upBound = Convert.ToInt32(offset);
+                _form.downBound = Convert.ToInt32(factor * rowCount + offset);
+
+                FirstPointInited = SecondPointInited = false;
+
+                _form.UpdateTransformation(new Point(pictureBoxSize.Width >> 1, pictureBoxSize.Height >> 1), 
+                             mapPoint);
+            }
+        }
     }
 }

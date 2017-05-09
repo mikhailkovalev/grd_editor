@@ -21,7 +21,7 @@ namespace GrdEditor
                 InitializeComponent();
                 LoadArgs(argv);
                 CalculateBoundsUsingFactors();
-                _tool = new HandTool(this);
+                _tool = new MagnifierTool(this);
             }
             catch (Exception e)
             {
@@ -29,6 +29,38 @@ namespace GrdEditor
             }
         }
 
+
+        protected override void WndProc(ref Message m)
+        {
+            if (m.Msg == 0x020A)
+            {
+                _info_label.Text = m.ToString();
+            }
+            base.WndProc(ref m);
+        }
+
+        public override bool PreProcessMessage(ref Message m)
+        {
+            if (m.Msg == 0x020A)
+            {
+                _info_label.Text = m.ToString();
+            }
+            return base.PreProcessMessage(ref m);
+        }
+
+        protected override void OnNotifyMessage(Message m)
+        {
+            if (m.Msg == 0x020A)
+            {
+                _info_label.Text = m.ToString();
+                Refresh();
+            }
+            else
+            {
+                base.OnNotifyMessage(m);
+            }
+        }
+        
         private void LoadArgs(String[] argv)
         {
             if (argv.Length > 0)
@@ -181,6 +213,7 @@ namespace GrdEditor
         private void pictureBox1_MouseDown(object sender, MouseEventArgs e)
         {
             _tool.MouseDownHandler(e);
+            this.Focus();
         }
 
         private void pictureBox1_MouseUp(object sender, MouseEventArgs e)
@@ -190,10 +223,25 @@ namespace GrdEditor
 
         private void pictureBox1_MouseMove(object sender, MouseEventArgs e)
         {
-            _info_label.Text = String.Format("X = {0}, Y = {1}", e.X, e.Y);
+            //_info_label.Text = String.Format("X = {0}, Y = {1}", e.X, e.Y);
             _tool.MouseMoveHandler(e);
         }
 
+        public Size PictureBoxSize
+        {
+            get
+            {
+                return pictureBox1.Size;
+            }
+        }
+        public Size MapSize
+        {
+            get
+            {
+                return new Size(_map.ColumnCount, _map.RowCount);
+            }
+        }
+        
         public Single GetColumnFromXF(int x)
         {
             return rc_factor * x + c_offset;
@@ -270,11 +318,16 @@ namespace GrdEditor
             CalculateBoundsUsingFactors();
         }
 
-        public void Update(Point CursorPos, PointF MapPos)
+        public void UpdateTransformation(Point CursorPos, PointF MapPos)
         {
             CalculateFactorsUsingBounds(CursorPos, MapPos);
             pictureBox1.Invalidate();
             Refresh();
+        }
+
+        public void UpdatePictureBox()
+        {
+            pictureBox1.Invalidate();
         }
 
         GrdMap _map = null;
@@ -298,6 +351,9 @@ namespace GrdEditor
 
         AbstractTool _tool;
 
-        
+        private void MainForm_MouseClick(object sender, MouseEventArgs e)
+        {
+            _info_label.Text = e.Button.ToString();
+        }
     }
 }
